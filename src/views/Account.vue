@@ -3,25 +3,20 @@
     <VForm v-slot="{ errors }" @submit="updated">
       <!-- 頭像 -->
       <div class="user-photo border circle">
-        <img class="hide" :src="user.photo" alt="" @load="successLoadImg" />
+        <img v-image="user.photo" class="hide" :src="user.photo" alt="" @load="successLoadImg" />
       </div>
       <!-- 上傳按鈕 -->
       <div class="upload-wrapper">
         <label class="upload btn radius" for="uploadImage">
           上傳大頭照
-          <VField
-            id="uploadImage"
-            class="hide"
-            name="uploadImage"
-            type="file"
-            :rules="{ ext: ['jpg', 'png', 'jpeg'] }"
-            @change="upload(errors)"
-          />
+          <input id="uploadImage" class="file-input" name="uploadImage" type="file"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png" :disabled="uploading || submitting"
+          @change="upload" />
         </label>
         <error-message name="uploadImage">
           <div class="error-message">圖片格式錯誤，僅限 JPG、PNG 圖片</div>
         </error-message>
-        <div v-if="errMessage" class="error-message">{{ errMessage }}</div>
+        <div v-if="errMessage" class="error-message" role="alert">{{ errMessage }}</div>
       </div>
       <!-- 暱稱 -->
       <label class="name-wrapper" for="name">
@@ -51,125 +46,53 @@
         </label>
       </div>
       <!-- 送出按鈕 -->
-      <button class="btn border submit" type="submit" :disabled="disabled(errors)">送出更新</button>
+      <button class="btn border submit" type="submit" :disabled="submitting || uploading || disabled(errors)">送出更新</button>
     </VForm>
   </div>
 </template>
 
 <script>
+import validateUpload from '@/methods/upload'
+
 export default {
   name: 'AccountView',
-  data() {
-    return {
-      user: {
-        photo: '',
-        name: '',
-        sex: ''
-      },
-      errMessage: ''
-    }
-  },
+  data() { return { user: { photo: '', name: '', sex: '' }, errMessage: '', uploading: false, submitting: false } },
   computed: {
-    tempUser() {
-      const { user } = this.$store.state
-      return user
-    },
-    compare() {
-      const { tempUser } = this
-      const { user } = this
-      const compare = [
-        user.photo !== tempUser.photo,
-        user.name !== tempUser.name,
-        user.sex !== tempUser.sex
-      ].includes(true)
-      return compare
-    }
+    tempUser() { return this.$store.state.user },
+    compare() { return ['photo', 'name', 'sex'].some(key => this.user[key] !== this.tempUser[key]) }
   },
-  watch: {
-    tempUser: {
-      handler() {
-        const user = this.tempUser
-        this.user = {
-          photo: user.photo,
-          name: user.name,
-          sex: user.sex || 'male'
-        }
-      },
-      deep: true,
-      immediate: true
-    }
-  },
+  watch: { tempUser: { deep: true, immediate: true, handler(user) { this.user = { photo: user.photo, name: user.name || '', sex: user.sex || 'male' } } } },
   methods: {
-    async upload(errors) {
-      this.errMessage = ''
-      if (errors.uploadImage === undefined) {
-        this.$store.commit('Load', true)
-        const uploadedFile = document.getElementById('uploadImage').files[0]
-        const formData = new FormData()
-        formData.append('file-to-upload', uploadedFile)
-        const api = `${process.env.VUE_APP_API}/upload/avatar`
-        const { headers } = this.$store.state
-        this.$http
-          .post(api, formData, headers)
-          .then((res) => {
-            const { imgUrl } = res.data
-            this.user.photo = imgUrl
-          })
-          .catch((err) => {
-            this.errMessage = err.response.data.message
-          })
-          .then(() => {
-            this.$store.commit('Load', false)
-          })
-      }
+    async upload(event) {
+      const file = event.target.files?.[0]
+      if (!file || this.uploading || this.submitting) return
+      this.errMessage = validateUpload(file, 2)
+      const input = event.target
+      input.value = ''
+      if (this.errMessage) return
+      this.uploading = true
+      const data = new FormData(); data.append('file-to-upload', file)
+      try {
+        const res = await this.$http.post(`${process.env.VUE_APP_API}/upload/avatar`, data)
+        this.user.photo = res.data.imgUrl
+      } catch (error) { this.errMessage = this.$errorMessage(error) }
+      finally { this.uploading = false }
     },
-    updated() {
-      this.$store.commit('Load', true)
-      const api = `${process.env.VUE_APP_API}/user/profile`
-      const { headers } = this.$store.state
+    async updated() {
+      if (this.submitting || this.uploading) return
+      this.submitting = true; this.errMessage = ''
       const data = {}
-      const { tempUser } = this
-      const newUser = this.user
-      if (newUser.name !== tempUser.name) data.name = newUser.name
-      if (
-        // eslint-disable-next-line operator-linebreak
-        newUser.photo !== tempUser.photo &&
-        newUser.photo !== `${process.env.VUE_APP_USER_PHOTO}`
-      ) {
-        data.photo = newUser.photo
-      }
-      if (newUser.sex !== tempUser.sex) data.sex = newUser.sex
-
-      this.$http
-        .patch(api, data, headers)
-        .then((res) => {
-          const { user } = res.data
-          delete user.followers
-          delete user.following
-          if (user.photo === '') user.photo = `${process.env.VUE_APP_USER_PHOTO}`
-
-          this.$store.commit('user', user)
-          this.$swal({
-            title: '資料已更新',
-            icon: 'success',
-            customClass: {
-              actions: 'customize',
-              icon: 'customize'
-            }
-          })
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+      if (this.user.name !== this.tempUser.name) data.name = this.user.name
+      if (this.user.sex !== this.tempUser.sex) data.sex = this.user.sex
+      if (this.user.photo !== this.tempUser.photo && this.user.photo !== process.env.VUE_APP_USER_PHOTO) data.photo = this.user.photo
+      try {
+        const { data: { user } } = await this.$http.patch(`${process.env.VUE_APP_API}/user/profile`, data)
+        this.$store.commit('user', { ...user, photo: user.photo || process.env.VUE_APP_USER_PHOTO })
+        this.$swal({ title: '資料已更新', icon: 'success', customClass: { actions: 'customize', icon: 'customize' } })
+      } catch (error) { this.errMessage = this.$errorMessage(error) }
+      finally { this.submitting = false }
     },
-    disabled(errors) {
-      const err = Object.keys(errors).length
-      if (this.user.name && err === 0 && this.compare) return false
-      return true
-    }
+    disabled(errors) { return !this.user.name.trim() || Object.keys(errors).length > 0 || !this.compare }
   }
 }
 </script>
@@ -228,7 +151,9 @@ export default {
 }
 
 .radio {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  &:focus-visible + .radio-button { outline: 2px solid $blue-dark; outline-offset: 3px; }
   &:checked ~ .radio-button::after {
     opacity: 1;
   }

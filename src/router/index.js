@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 // vue-axios
-import axios from 'axios'
+import http, { errorMessage } from '@/services/http'
 
 import store from '@/store'
 
@@ -72,28 +72,17 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  store.commit('Load', true)
-  if (to.name !== 'sign_in' && to.name !== 'sign_up') {
-    const api = `${process.env.VUE_APP_API}/user/checkLogin`
-    const headers = {
-      headers: {
-        authorization: localStorage.getItem('authorization')
-      }
-    }
-    store.commit('headers', headers)
-    const isAuth = await axios
-      .get(api, headers)
-      .then(() => true)
-      .catch(() => '/sign_in')
-      .then()
-    return isAuth
+  if (['sign_in', 'sign_up'].includes(to.name)) return true
+  const authorization = localStorage.getItem('authorization')
+  if (!authorization) return { name: 'sign_in' }
+  store.commit('headers', { headers: { authorization } })
+  try {
+    await http.get(`${process.env.VUE_APP_API}/user/checkLogin`)
+    return true
+  } catch (error) {
+    store.commit('authError', errorMessage(error))
+    return { name: 'sign_in' }
   }
-  return true
-})
-
-router.afterEach(() => {
-  store.commit('Load', false)
 })
 
 export default router
-

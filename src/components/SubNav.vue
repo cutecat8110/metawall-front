@@ -1,11 +1,11 @@
 <template>
   <div class="subnav">
-    <div ref="filterWrapper" class="filter-wrapper">
-      <button class="btn border bg-white filter" type="button" @click="toggle()">
+    <div ref="filterWrapper" class="filter-wrapper" @keydown.esc.stop.prevent="closeMenu">
+      <button ref="filterButton" :aria-expanded="select" aria-controls="sort-dropdown" class="btn border bg-white filter" type="button" @click="toggle()">
         {{ asc ? '最舊貼文' : '最新貼文' }}
         <span class="material-icons">expand_more</span>
       </button>
-      <div v-if="select" ref="filterDropdown" class="border bg-white dropdown-wrapper">
+      <div v-if="select" id="sort-dropdown" ref="filterDropdown" class="border bg-white dropdown-wrapper">
         <ul class="border bg-white dropdown">
           <li>
             <router-link class="btn" :to="{ query: query('desc') }" @click="toggle()">
@@ -29,10 +29,11 @@
           v-model="search"
           type="text"
           placeholder="搜尋貼文"
+          aria-label="搜尋貼文"
           @keyup.enter="searchEnter"
         />
       </label>
-      <router-link class="btn" :to="{ query: query() }">
+      <router-link class="btn" aria-label="搜尋" :to="{ query: query() }">
         <span class="material-icons"> search </span>
       </router-link>
     </div>
@@ -57,19 +58,20 @@ export default {
     document.removeEventListener('click', this.filterDropdownClick)
   },
   watch: {
-    $route() {
+    $route: { immediate: true, handler() {
+      this.select = false
       this.asc = this.$route.query.timeSort === 'asc'
-      this.search = this.$route.query.q ? this.$route.query.q : ''
-    }
+      this.search = this.$route.query.q || ''
+    } }
   },
   methods: {
-    query(asc) {
+    query(sort = this.$route.query.timeSort) {
       const query = {}
-      if (asc === 'asc') query.timeSort = 'asc'
+      if (sort === 'asc') query.timeSort = 'asc'
       if (this.search !== '') query.q = this.search
-      if (!asc && this.search === '') query.timeSort = this.$route.query.timeSort
       return query
     },
+    closeMenu() { this.select = false; this.$refs.filterButton.focus() },
     toggle() {
       this.select = !this.select
     },

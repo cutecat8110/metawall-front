@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 
 // vue-axios
-import axios from 'axios'
+import http, { setUnauthorizedHandler, errorMessage } from '@/services/http'
+import image from '@/directives/image'
 import VueAxios from 'vue-axios'
 
 // Vee Validate
@@ -45,9 +46,14 @@ app.config.globalProperties.$filters = {
 
 app.config.globalProperties.successLoadImg = successLoadImg
 
+setUnauthorizedHandler(() => {
+  if (!['sign_in', 'sign_up'].includes(router.currentRoute.value.name)) router.replace({ name: 'sign_in' })
+})
+app.config.globalProperties.$errorMessage = errorMessage
+app.directive('image', image)
 app.use(store)
 app.use(router)
-app.use(VueAxios, axios)
+app.use(VueAxios, http)
 app.use(VueSweetalert2)
 app.component('ErrorMessage', ErrorMessage)
 app.component('VField', Field)

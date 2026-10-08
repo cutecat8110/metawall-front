@@ -14,7 +14,7 @@
 
 .container {
   display: grid;
-  grid-template-columns: 21.875rem 23.25rem;
+  grid-template-columns: minmax(0, 21.875rem) minmax(0, 23.25rem);
   align-items: center;
   padding: 4.25rem 3rem;
 
@@ -113,4 +113,13 @@ h3,
 
 .link {
   margin: 0 auto;
+}
+
+@media (max-width: $pad) {
+  .middle { padding: 1rem; }
+  .container { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; padding: 1.5rem 1rem; }
+  .container img { max-width: 14rem; margin: 0 auto; }
+  h2 { font-size: clamp(2.25rem, 10vw, 3.75rem); }
+  h3 { font-size: 1.25rem; }
+  .input-group .tooltip { top: 100%; left: 0; right: auto; max-width: 100%; padding: 0.5rem; transform: none; clip-path: none; z-index: 2; }
 }

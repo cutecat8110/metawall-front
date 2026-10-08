@@ -2,7 +2,7 @@
   <div class="aside-nav">
     <ul class="nav border bg-white">
       <li>
-        <router-link class="btn" to="/post">
+        <router-link class="btn" aria-label="張貼動態" to="/post">
           <span class="fw-bold btn post radius"> 張貼動態 </span>
           <div class="border btn circle">
             <span class="material-icons"> add </span>
@@ -10,15 +10,15 @@
         </router-link>
       </li>
       <li>
-        <router-link class="btn link" :to="{ path: `/profile/${user._id}` }">
+        <router-link class="btn link" aria-label="我的貼文牆" :to="{ path: `/profile/${user._id}` }">
           <div class="user-photo border circle">
-            <img class="hide" :src="user.photo" alt="" @load="successLoadImg" />
+            <img v-image="user.photo" loading="lazy" decoding="async" class="hide" :src="user.photo" alt="" @load="successLoadImg" />
           </div>
           <span class="fw-bold">{{ user.name }}</span>
         </router-link>
       </li>
       <li>
-        <router-link class="btn link" :to="{ path: `/follow_list` }">
+        <router-link class="btn link" aria-label="追蹤名單" :to="{ path: `/follow_list` }">
           <div class="btn-icon border circle">
             <span class="material-icons"> notifications_none </span>
           </div>
@@ -26,7 +26,7 @@
         </router-link>
       </li>
       <li>
-        <router-link class="btn link" :to="{ path: `/like_list` }">
+        <router-link class="btn link" aria-label="我按讚的文章" :to="{ path: `/like_list` }">
           <div class="btn-icon border circle">
             <span class="material-icons"> thumb_up_off_alt </span>
           </div>
@@ -37,7 +37,7 @@
     <div class="copyright border radius">
       <ul class="external-link">
         <li>
-          <a class="btn" href="https://github.com/cutecat8110/metawall" target="_blank">
+          <a class="btn" href="https://github.com/cutecat8110/metawall-front" target="_blank">
             <span class="material-icons"> desktop_windows </span>
             前端
           </a>
@@ -53,7 +53,7 @@
           </a>
         </li>
         <li>
-          <a class="btn" href="https://github.com/cutecat8110/metawall_backend" target="_blank">
+          <a class="btn" href="https://github.com/cutecat8110/metawall-back" target="_blank">
             <span class="material-icons"> storage </span>
             後端
           </a>

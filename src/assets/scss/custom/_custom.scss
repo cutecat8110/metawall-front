@@ -58,9 +58,7 @@ button {
 
     border: 0;
   }
-  &:focus-visible {
-    outline: none;
-  }
+
 }
 
 .btn {
@@ -175,3 +173,18 @@ button {
     border-color: $blue-light;
   }
 }
+
+:where(button, a, input, textarea):focus-visible {
+  outline: 2px solid $blue-dark;
+  outline-offset: 3px;
+}
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+label:focus-within { outline-offset: 3px; }
+.upload:focus-within { outline: 2px solid $blue-dark; }
+img { max-width: 100%; }
+img[data-load-error] { min-height: 2rem; color: $grey-dark; font-size: 0.875rem; }
+
+.user-photo img[data-load-error] { opacity: 0; }
+
+/* Native lazy loading needs a layout box before the load event can fire. */
+img.hide[loading="lazy"] { display: block; opacity: 0; }

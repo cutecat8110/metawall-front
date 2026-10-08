@@ -3,7 +3,7 @@
     <Title :title="'我按讚的貼文'" />
     <div v-for="post in posts" :key="post._id" class="card border bg-white shadow radius">
       <router-link class="user-photo border circle btn" :to="{ path: `/profile/${post.user._id}` }">
-        <img class="hide" :src="post.user.photo || photo" alt="" @load="successLoadImg" />
+        <img v-image="post.user.photo || photo" class="hide" :src="post.user.photo || photo" alt="" @load="successLoadImg" />
       </router-link>
       <div class="info">
         <router-link class="fw-bold btn" :to="{ path: `/profile/${post.user._id}` }">
@@ -11,7 +11,7 @@
         </router-link>
         <span class="created">發文時間：{{ $filters.date(post.createdAt) }} </span>
       </div>
-      <button class="cancel btn fw-bold" type="button" @click="unlike(post._id)">
+      <button class="cancel btn fw-bold" type="button" @click="unlike(post._id)" :disabled="pending.includes(post._id)">
         <span class="material-icons"> thumb_up_off_alt </span>
         取消
       </button>
@@ -24,7 +24,8 @@
       </router-link>
     </div>
     <Posts v-if="Object.keys(post).length > 0" :tempPost="post" />
-    <PostsNone v-if="posts.length == 0 && Object.keys(post).length == 0 && load" />
+    <p v-if="requestError" class="error-message" role="alert">{{ requestError }} <button type="button" class="btn" @click="loadData">重新載入</button></p>
+    <PostsNone v-if="!requestError && posts.length === 0 && !post._id && load" />
   </div>
 </template>
 
@@ -34,88 +35,32 @@ import Posts from '@/components/Posts.vue'
 import PostsNone from '@/components/PostsNone.vue'
 
 export default {
-  name: 'LikeListView',
-  components: {
-    Title,
-    Posts,
-    PostsNone
-  },
-  data() {
-    return {
-      posts: [],
-      post: {},
-      photo: process.env.VUE_APP_USER_PHOTO,
-      load: false
-    }
-  },
-  watch: {
-    $route: {
-      handler() {
-        this.load = false
-        this.posts = []
-        this.post = {}
-        if (this.$route.query.id) {
-          return this.getPost()
-        }
-        return this.getList()
-      },
-      immediate: true
-    }
-  },
+  name: 'LikeListView', components: { Title, Posts, PostsNone },
+  data() { return { posts: [], post: {}, photo: process.env.VUE_APP_USER_PHOTO, load: false, requestError: '', requestVersion: 0, pending: [] } },
+  watch: { $route: { immediate: true, handler() { if (this.$route.name === 'like_list') this.loadData() } } },
+  beforeUnmount() { this.requestVersion += 1 },
   methods: {
-    getList() {
-      this.$store.commit('Load', true)
-      const api = `${process.env.VUE_APP_API}/user/likeList`
-      const { headers } = this.$store.state
-      this.$http
-        .get(api, headers)
-        .then((res) => {
-          const { posts } = res.data
-          this.posts = posts
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-          this.load = true
-        })
-    },
-    getPost() {
-      this.$store.commit('Load', true)
+    async loadData() {
+      this.requestVersion += 1
+      const version = this.requestVersion
       const { id } = this.$route.query
-      const api = `${process.env.VUE_APP_API}/post/${id}`
-      const { headers } = this.$store.state
-      this.$http
-        .get(api, headers)
-        .then((res) => {
-          const { post } = res.data
-          this.post = post
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-          this.load = true
-        })
+      this.load = false; this.requestError = ''; this.posts = []; this.post = {}
+      try {
+        const res = await this.$http.get(`${process.env.VUE_APP_API}${id ? `/post/${id}` : '/user/likeList'}`)
+        if (version !== this.requestVersion) return
+        if (id) this.post = res.data.post
+        else this.posts = res.data.posts
+      } catch (error) { if (version === this.requestVersion) this.requestError = this.$errorMessage(error) }
+      finally { if (version === this.requestVersion) this.load = true }
     },
-    unlike(id) {
-      this.$store.commit('Load', true)
-      const api = `${process.env.VUE_APP_API}/post/${id}/likes`
-      const { headers } = this.$store.state
-
-      this.$http
-        .delete(api, headers)
-        .then(() => {
-          this.getList()
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+    async unlike(id) {
+      if (this.pending.includes(id)) return
+      this.pending.push(id)
+      try {
+        await this.$http.delete(`${process.env.VUE_APP_API}/post/${id}/likes`)
+        this.posts = this.posts.filter(post => post._id !== id)
+      } catch (error) { this.requestError = this.$errorMessage(error) }
+      finally { this.pending = this.pending.filter(value => value !== id) }
     }
   }
 }
@@ -129,7 +74,7 @@ export default {
 
 .card {
   display: grid;
-  grid-template-columns: 2.5rem 1fr auto auto;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto auto;
   align-items: center;
   padding: 1rem 2rem 1rem 1rem;
 
@@ -181,5 +126,7 @@ export default {
 .day {
   font-size: 0.875rem;
 }
+.card a.fw-bold, .info .fw-bold { white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: $mobile) { .card { column-gap: 0.5rem; padding: 1rem 0.75rem; } }
 </style>
 

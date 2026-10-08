@@ -1,24 +1,12 @@
 import { createStore } from 'vuex'
 
 export default createStore({
-  state: {
-    isLoading: false,
-    user: {},
-    headers: {}
-  },
-  getters: {},
+  state: { isLoading: false, pendingRequests: 0, authError: '', user: {}, headers: {} },
   mutations: {
-    Load(state, status) {
-      state.isLoading = status
-    },
-    headers(state, headers) {
-      state.headers = headers
-    },
-    user(state, user) {
-      state.user = user
-    }
-  },
-  actions: {},
-  modules: {}
+    requestStarted(state) { state.pendingRequests += 1; state.isLoading = true },
+    requestFinished(state) { state.pendingRequests = Math.max(0, state.pendingRequests - 1); state.isLoading = state.pendingRequests > 0 },
+    authError(state, message) { state.authError = message },
+    headers(state, headers) { state.headers = headers },
+    user(state, user) { state.user = user }
+  }
 })
-

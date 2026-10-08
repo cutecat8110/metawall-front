@@ -17,14 +17,9 @@
       </label>
       <label class="btn upload" for="uploadImage">
         上傳圖片
-        <VField
-          id="uploadImage"
-          class="hide"
-          name="uploadImage"
-          type="file"
-          :rules="{ ext: ['jpg', 'png', 'jpeg'] }"
-          @change="upload(errors)"
-        />
+        <input id="uploadImage" class="file-input" name="uploadImage" type="file"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png" :disabled="uploading || submitting"
+          @change="upload" />
       </label>
       <div class="image-wrapper border radius">
         <div class="clamp" :style="paddingBottom">
@@ -32,7 +27,7 @@
             <span class="material-icons"> image </span>
           </div>
           <template v-if="image">
-            <img ref="postsPhoto" class="hide" :src="image" alt="" @load="successLoadImg, size()" />
+            <img v-image="image" ref="postsPhoto" class="hide" :src="image" alt="" @load="successLoadImg($event); size()" />
             <button class="btn border clear circle" type="button" @click="clearImg">
               <span class="material-icons"> close </span>
             </button>
@@ -42,9 +37,9 @@
       <error-message name="uploadImage">
         <div class="error-message">圖片格式錯誤，僅限 JPG、PNG 圖片</div>
       </error-message>
-      <div v-if="errMessage" class="error-message">{{ errMessage }}</div>
+      <div v-if="errMessage" class="error-message" role="alert">{{ errMessage }}</div>
       <div class="submit-wrapper">
-        <button class="btn border submit" type="submit" :disabled="disabled(errors)">
+        <button class="btn border submit" type="submit" :disabled="submitting || uploading || disabled(errors)">
           送出貼文
         </button>
       </div>
@@ -54,88 +49,44 @@
 
 <script>
 import Title from '@/components/Title.vue'
+import validateUpload from '@/methods/upload'
 
 export default {
-  name: 'PostView',
-  components: {
-    Title
-  },
-  data() {
-    return {
-      content: '',
-      image: '',
-      err: true,
-      errMessage: '',
-      paddingBottom: {}
-    }
-  },
+  name: 'PostView', components: { Title },
+  data() { return { content: '', image: '', errMessage: '', paddingBottom: {}, uploading: false, submitting: false, uploadVersion: 0 } },
+  beforeUnmount() { this.uploadVersion += 1 },
   methods: {
-    createPosts() {
-      this.$store.commit('Load', true)
-      const api = `${process.env.VUE_APP_API}/post`
-      const { headers } = this.$store.state
-
-      const data = {
-        user: this.$store.state.user._id,
-        image: this.image,
-        content: this.content
-      }
-      this.$http
-        .post(api, data, headers)
-        .then(() => {
-          this.$router.push({ name: 'posts_wall' })
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+    async createPosts() {
+      if (this.submitting || this.uploading || !this.content.trim()) return
+      this.submitting = true; this.errMessage = ''
+      try {
+        await this.$http.post(`${process.env.VUE_APP_API}/post`, { image: this.image, content: this.content })
+        await this.$router.push({ name: 'posts_wall' })
+      } catch (error) { this.errMessage = this.$errorMessage(error) }
+      finally { this.submitting = false }
     },
-    async upload(errors) {
-      this.errMessage = ''
-      this.image = ''
-      if (errors.uploadImage === undefined) {
-        this.$store.commit('Load', true)
-        const uploadedFile = document.getElementById('uploadImage').files[0]
-        const formData = new FormData()
-        formData.append('file-to-upload', uploadedFile)
-        const api = `${process.env.VUE_APP_API}/upload/post`
-        const { headers } = this.$store.state
-        this.$http
-          .post(api, formData, headers)
-          .then((res) => {
-            const { imgUrl } = res.data
-            this.image = imgUrl
-          })
-          .catch((err) => {
-            this.errMessage = err.response.data.message
-          })
-          .then(() => {
-            this.$store.commit('Load', false)
-          })
-      }
+    async upload(event) {
+      const file = event.target.files?.[0]
+      if (!file || this.uploading || this.submitting) return
+      this.errMessage = validateUpload(file, 1)
+      const input = event.target
+      input.value = ''
+      if (this.errMessage) return
+      this.uploadVersion += 1
+      const version = this.uploadVersion
+      const data = new FormData(); data.append('file-to-upload', file)
+      this.uploading = true
+      try {
+        const res = await this.$http.post(`${process.env.VUE_APP_API}/upload/post`, data)
+        if (version === this.uploadVersion) this.image = res.data.imgUrl
+      } catch (error) { if (version === this.uploadVersion) this.errMessage = this.$errorMessage(error) }
+      finally { this.uploading = false }
     },
-    clearImg() {
-      this.image = ''
-      this.paddingBottom = {
-        paddingBottom: '52.35%'
-      }
-    },
-    disabled(errors) {
-      const err = Object.keys(errors).length
-      if (this.content && err === 0) return false
-      return true
-    },
+    clearImg() { this.uploadVersion += 1; this.image = ''; this.paddingBottom = { paddingBottom: '52.35%' } },
+    disabled(errors) { return !this.content.trim() || Object.keys(errors).length > 0 },
     size() {
-      if (this.$refs.postsPhoto) {
-        const { height } = this.$refs.postsPhoto
-        const { width } = this.$refs.postsPhoto
-        const ratio = (height / width) * 100
-        this.paddingBottom = {
-          paddingBottom: ratio > 150 ? '150%' : `${ratio}%`
-        }
-      }
+      const image = this.$refs.postsPhoto
+      if (image?.naturalWidth) this.paddingBottom = { paddingBottom: `${Math.min(150, image.naturalHeight / image.naturalWidth * 100)}%` }
     }
   }
 }

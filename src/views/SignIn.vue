@@ -2,7 +2,7 @@
   <div class="sign-in-view">
     <div class="middle">
       <div class="container border">
-        <img class="cursor-none hide" :src="bg" alt="" @load="successLoadImg" />
+        <img v-image="bg" fetchpriority="high" decoding="async" class="cursor-none hide" :src="bg" alt="" @load="successLoadImg" />
         <div class="auth-content">
           <h2 class="cursor-none">MetaWall</h2>
           <h3>到元宇宙展開全新社交圈</h3>
@@ -14,17 +14,19 @@
                   v-model="user.email"
                   class="border"
                   name="Email"
+                  aria-label="Email"
                   type="email"
                   placeholder="Email"
                   :rules="{ required: true, email: true }"
-                  autocomplete="new-password"
+                  autocomplete="username"
                 />
                 <div class="tooltip">
                   <div class="title">SAMPLE</div>
                   <div>帳 - test1@example.com</div>
                   <div>密 - Test123456</div>
                 </div>
-                <error-message name="Email" />
+                <error-message name="Email"
+                  aria-label="Email" />
               </label>
               <label class="input-wrapper" for="password">
                 <VField
@@ -32,9 +34,10 @@
                   v-model="user.password"
                   class="border"
                   name="Password"
+                  aria-label="Password"
                   type="password"
                   placeholder="Password"
-                  autocomplete="new-password"
+                  autocomplete="current-password"
                   rules="required"
                 />
                 <div class="tooltip">
@@ -42,11 +45,12 @@
                   <div>帳 - test1@example.com</div>
                   <div>密 - Test123456</div>
                 </div>
-                <error-message name="Password" />
+                <error-message name="Password"
+                  aria-label="Password" />
               </label>
             </div>
-            <div v-if="err" class="error-message">帳號或密碼錯誤，請重新輸入！</div>
-            <button class="btn border submit" type="submit" :disabled="err">登入</button>
+            <div v-if="err || connectionError" class="error-message" role="alert">{{ err || connectionError }}</div>
+            <button class="btn border submit" type="submit" :disabled="submitting">登入</button>
           </VForm>
           <router-link class="btn link" :to="{ name: 'sign_up' }">註冊帳號</router-link>
         </div>
@@ -58,43 +62,21 @@
 <script>
 export default {
   name: 'SignInView',
-  data() {
-    return {
-      user: {
-        email: '',
-        password: ''
-      },
-      err: false,
-      bg: process.env.VUE_APP_SIGN_BG
-    }
-  },
-  watch: {
-    user: {
-      handler() {
-        if (this.err) {
-          this.err = false
-        }
-      },
-      deep: true
-    }
-  },
+  data() { return { user: { email: '', password: '' }, err: '', submitting: false, bg: process.env.VUE_APP_SIGN_BG } },
+  computed: { connectionError() { return this.$store.state.authError } },
+  watch: { user: { deep: true, handler() { this.err = ''; this.$store.commit('authError', '') } } },
   methods: {
-    signIn() {
-      this.$store.commit('Load', true)
-      const api = `${process.env.VUE_APP_API}/user/sign_in`
-      this.$http
-        .post(api, this.user)
-        .then((res) => {
-          const token = `Bearer ${res.data.user.token}`
-          localStorage.setItem('authorization', token)
-          this.$router.push({ name: 'posts_wall' })
-        })
-        .catch(() => {
-          this.err = true
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+    async signIn() {
+      if (this.submitting) return
+      this.submitting = true
+      this.err = ''
+      this.$store.commit('authError', '')
+      try {
+        const res = await this.$http.post(`${process.env.VUE_APP_API}/user/sign_in`, this.user, { skipAuth: true })
+        localStorage.setItem('authorization', `Bearer ${res.data.user.token}`)
+        await this.$router.push({ name: 'posts_wall' })
+      } catch (error) { this.err = this.$errorMessage(error) }
+      finally { this.submitting = false }
     }
   }
 }

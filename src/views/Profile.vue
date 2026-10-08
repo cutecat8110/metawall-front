@@ -3,7 +3,7 @@
     <div class="header-wrapper">
       <div class="header border bg-white radius">
         <div class="user-photo">
-          <img class="hide" :src="profile.photo" alt="" @load="successLoadImg" />
+          <img v-image="profile.photo" class="hide" :src="profile.photo" alt="" @load="successLoadImg" />
         </div>
         <div class="info">
           <div>
@@ -15,7 +15,7 @@
             :class="{ follow: follow }"
             class="btn border radius shadow fw-bold"
             type="button"
-            @click="toggle(follow)"
+            @click="toggle(follow)" :disabled="following"
           >
             {{ follow ? '取消追蹤' : '追蹤' }}
           </button>
@@ -24,7 +24,8 @@
       <div class="mat border bg-white radius"></div>
     </div>
     <SubNav />
-    <PostsNone v-if="posts.length == 0" />
+    <p v-if="requestError" class="error-message" role="alert">{{ requestError }} <button type="button" class="btn" @click="load">重新載入</button></p>
+    <PostsNone v-if="loaded && !requestError && posts.length === 0" />
     <Posts v-for="item in posts" :key="item._id" :tempPost="item" />
   </div>
 </template>
@@ -35,113 +36,45 @@ import PostsNone from '@/components/PostsNone.vue'
 import SubNav from '@/components/SubNav.vue'
 
 export default {
-  name: 'ProfileView',
-  components: {
-    Posts,
-    PostsNone,
-    SubNav
-  },
-  data() {
-    return {
-      posts: {},
-      profile: {
-        _id: '',
-        photo: '',
-        name: '',
-        followers: []
-      }
-    }
-  },
-  mounted() {
-    this.getPosts()
-    this.getProfile()
-  },
-  watch: {
-    $route() {
-      if (this.$route.name === 'profile') {
-        this.posts = {}
-        this.getPosts()
-        this.getProfile()
-      }
-    }
-  },
+  name: 'ProfileView', components: { Posts, PostsNone, SubNav },
+  data() { return { posts: [], profile: { _id: '', name: '', photo: '', followers: [] }, following: false, loaded: false, requestError: '', requestVersion: 0 } },
+  mounted() { this.load() },
+  beforeUnmount() { this.requestVersion += 1 },
+  watch: { $route() { if (this.$route.name === 'profile') this.load() } },
   computed: {
-    followers() {
-      const tempList = this.profile.followers
-      const followers = tempList.map((item) => Object.values(item)[0])
-      return followers
-    },
-    follow() {
-      return this.followers.includes(this.user._id)
-    },
-    user() {
-      const { user } = this.$store.state
-      return user
-    }
+    user() { return this.$store.state.user },
+    followers() { return this.profile.followers.map(item => item.user) },
+    follow() { return this.followers.includes(this.user._id) }
   },
   methods: {
-    getPosts() {
-      this.$store.commit('Load', true)
-      const tempQuery = { ...this.$route.query, ...this.$route.params }
-      let query = new URLSearchParams(tempQuery).toString()
-      if (query) query = `?${query}`
-      const api = `${process.env.VUE_APP_API}/posts${query}`
-      const { headers } = this.$store.state
-
-      this.$http
-        .get(api, headers)
-        .then((res) => {
-          this.posts = res.data.posts
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
-    },
-    getProfile() {
-      this.$store.commit('Load', true)
-
+    async load() {
+      this.requestVersion += 1
+      const version = this.requestVersion
       const { p } = this.$route.params
-      const api = `${process.env.VUE_APP_API}/user/profile?p=${p}`
-      const { headers } = this.$store.state
-
-      this.$http
-        .get(api, headers)
-        .then((res) => {
-          const { user } = res.data
-          delete user.following
-          delete user.sex
-          if (user.photo === '') user.photo = `${process.env.VUE_APP_USER_PHOTO_2}`
-
-          this.profile = user
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+      this.loaded = false; this.requestError = ''
+      this.profile = { _id: '', name: '', photo: '', followers: [] }; this.posts = []
+      try {
+        const [posts, profile] = await Promise.all([
+          this.$http.get(`${process.env.VUE_APP_API}/posts`, { params: { ...this.$route.query, p } }),
+          this.$http.get(`${process.env.VUE_APP_API}/user/profile`, { params: { p } })
+        ])
+        if (version !== this.requestVersion) return
+        this.posts = posts.data.posts
+        this.profile = { ...profile.data.user, photo: profile.data.user.photo || process.env.VUE_APP_USER_PHOTO_2 }
+      } catch (error) { if (version === this.requestVersion) this.requestError = this.$errorMessage(error) }
+      finally { if (version === this.requestVersion) this.loaded = true }
     },
-    toggle(follow) {
-      this.$store.commit('Load', true)
-
+    async toggle(follow) {
+      if (this.following) return
+      this.following = true; this.requestError = ''
       const { p } = this.$route.params
-      const api = `${process.env.VUE_APP_API}/user/${p}/follow`
-      const { headers } = this.$store.state
-      const method = follow ? this.$http.delete(api, headers) : this.$http.post(api, null, headers)
-
-      method
-        .then(() => {
-          this.getProfile()
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+      try {
+        const api = `${process.env.VUE_APP_API}/user/${p}/follow`
+        if (follow) await this.$http.delete(api)
+        else await this.$http.post(api)
+        if (p === this.$route.params.p) await this.load()
+      } catch (error) { this.requestError = this.$errorMessage(error) }
+      finally { this.following = false }
     }
   }
 }

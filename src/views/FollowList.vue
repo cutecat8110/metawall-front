@@ -6,7 +6,7 @@
         class="user-photo border circle btn"
         :to="{ path: `/profile/${follow.user._id}` }"
       >
-        <img class="hide" :src="follow.user.photo || photo" alt="" @load="successLoadImg" />
+        <img v-image="follow.user.photo || photo" class="hide" :src="follow.user.photo || photo" alt="" @load="successLoadImg" />
       </router-link>
       <router-link class="fw-bold btn" :to="{ path: `/profile/${follow.user._id}` }">
         {{ follow.user.name }}
@@ -14,7 +14,8 @@
       <span class="created"> 追蹤時間：{{ $filters.date(follow.createdAt) }} </span>
       <span class="day">您已追蹤 {{ $filters.now(follow.createdAt) }}! </span>
     </div>
-    <PostsNone v-if="list.length == 0" />
+    <p v-if="requestError" class="error-message" role="alert">{{ requestError }} <button type="button" class="btn" @click="getList">重新載入</button></p>
+    <PostsNone v-if="loaded && !requestError && list.length === 0" />
   </div>
 </template>
 
@@ -23,37 +24,17 @@ import Title from '@/components/Title.vue'
 import PostsNone from '@/components/PostsNone.vue'
 
 export default {
-  name: 'FollowListView',
-  components: {
-    Title,
-    PostsNone
-  },
-  data() {
-    return {
-      list: [],
-      photo: process.env.VUE_APP_USER_PHOTO
-    }
-  },
-  created() {
-    this.getList()
-  },
+  name: 'FollowListView', components: { Title, PostsNone },
+  data() { return { list: [], photo: process.env.VUE_APP_USER_PHOTO, loaded: false, requestError: '' } },
+  created() { this.getList() },
   methods: {
-    getList() {
-      this.$store.commit('Load', true)
-      const api = `${process.env.VUE_APP_API}/user/profile`
-      const { headers } = this.$store.state
-      this.$http
-        .get(api, headers)
-        .then((res) => {
-          const { user } = res.data
-          this.list = user.following
-        })
-        .catch((err) => {
-          console.error(err)
-        })
-        .then(() => {
-          this.$store.commit('Load', false)
-        })
+    async getList() {
+      this.loaded = false; this.requestError = ''
+      try {
+        const res = await this.$http.get(`${process.env.VUE_APP_API}/user/profile`)
+        this.list = res.data.user.following.filter(item => item.user)
+      } catch (error) { this.requestError = this.$errorMessage(error) }
+      finally { this.loaded = true }
     }
   }
 }
@@ -67,7 +48,7 @@ export default {
 
 .card {
   display: grid;
-  grid-template-columns: 2.5rem 1fr auto;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
   padding: 1rem;
 
   column-gap: 1rem;
@@ -106,5 +87,8 @@ export default {
 .day {
   font-size: 0.875rem;
 }
+.card a.fw-bold, .info .fw-bold { white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: $mobile) { .card { column-gap: 0.5rem; padding: 1rem 0.75rem; } }
+@media (max-width: $pad) { .day { grid-column: 2 / -1; } .created { grid-column: 2 / -1; } }
 </style>
 

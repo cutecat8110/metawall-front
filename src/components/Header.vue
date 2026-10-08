@@ -2,14 +2,14 @@
   <header>
     <div class="container">
       <router-link class="btn logo" to="/">MetaWall</router-link>
-      <div ref="memberWrapper" class="member-wrapper">
-        <button class="member-btn btn" type="button" @click="toggle()">
+      <div ref="memberWrapper" class="member-wrapper" @keydown.esc.stop.prevent="closeMenu">
+        <button ref="memberButton" class="member-btn btn" :aria-expanded="select" aria-controls="member-dropdown" type="button" @click="toggle()">
           <div class="user-photo border circle">
-            <img class="hide" :src="user.photo" alt="" @load="successLoadImg" />
+            <img v-image="user.photo" class="hide" :src="user.photo" alt="" @load="successLoadImg" />
           </div>
           <span class="member-text">Member</span>
         </button>
-        <div v-if="select" ref="memberDropdown" class="border bg-white dropdown-wrapper">
+        <div v-if="select" id="member-dropdown" ref="memberDropdown" class="border bg-white dropdown-wrapper">
           <ul class="border bg-white dropdown">
             <li class="btn">
               <router-link class="btn link" :to="{ path: `/profile/${user._id}` }" @click="toggle">
@@ -21,7 +21,7 @@
                 修改個人資料
               </router-link>
             </li>
-            <li class="btn" @click="signOut()" @keyup="signOut()">登出</li>
+            <li><button class="btn logout" type="button" @click="signOut">登出</button></li>
           </ul>
         </div>
       </div>
@@ -62,6 +62,7 @@ export default {
     }
   },
   methods: {
+    closeMenu() { this.select = false; this.$refs.memberButton.focus() },
     toggle() {
       this.select = !this.select
     },
@@ -82,6 +83,7 @@ export default {
         const bodyWidth = document.body.clientWidth
         const dropdownWidth = this.$refs.memberDropdown.getBoundingClientRect().width
         const memberX = this.$refs.memberWrapper.getBoundingClientRect().x
+        this.$refs.memberDropdown.style.transform = 'translateY(100%)'
         if (bodyWidth - rem < memberX + dropdownWidth) {
           const offset = bodyWidth - dropdownWidth - memberX - rem + 5
           this.$refs.memberDropdown.style.transform = `translate(${offset}px,100%)`
@@ -90,6 +92,9 @@ export default {
     },
     signOut() {
       localStorage.removeItem('authorization')
+      this.$store.commit('user', {})
+      this.$store.commit('headers', {})
+      this.$store.commit('authError', '')
       this.$router.push({ name: 'sign_in' })
     }
   }
@@ -169,6 +174,8 @@ header {
 
   transform: translateY(100%);
 }
+
+.logout { width: 100%; }
 
 .dropdown {
   transform: translate(-5px, -5px);
