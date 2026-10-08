@@ -110,3 +110,9 @@ npm run build
     </tr>
   </tbody>
 </table>
+
+## 載入維護（2026-10-08）
+
+原始圖片與設計保留，網站引用預先產生的 WebP。更新原圖後，以 Node 22 執行 `npm ci`、`npm run images:optimize`；一併提交 WebP 與 `qa/image-sizes.json`，一般發布不會即時轉圖。圖片來源與輸出清單在 `scripts/image-sources.json`。之後執行原本的 `npm run build`，同步發布 `docs/`。
+
+檢查方法、數據及外部服務限制見 [QA_CHANGELOG.md](QA_CHANGELOG.md)。

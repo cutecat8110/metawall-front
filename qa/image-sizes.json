@@ -1,0 +1,10 @@
+[
+  {
+    "source": "public/images/sign-bg.png",
+    "target": "public/images/sign-bg.webp",
+    "width": 1457,
+    "height": 1422,
+    "originalBytes": 146363,
+    "optimizedBytes": 53978
+  }
+]

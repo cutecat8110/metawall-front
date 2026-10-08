@@ -1,0 +1,7 @@
+[
+  {
+    "source": "public/images/sign-bg.png",
+    "target": "public/images/sign-bg.webp",
+    "lossless": true
+  }
+]

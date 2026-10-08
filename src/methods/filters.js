@@ -1,5 +1,9 @@
 // moment
 import moment from 'moment'
+import 'moment/locale/zh-tw'
+
+// Preserve the original default; relative labels explicitly use zh-tw below.
+moment.locale('en')
 
 // eslint-disable-next-line import/prefer-default-export
 export function date(time) {

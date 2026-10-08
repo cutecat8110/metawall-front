@@ -6,7 +6,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "serve": "vue-cli-service serve",
-    "test": "vitest run"
+    "test": "vitest run",
+    "images:optimize": "node scripts/optimize-images.mjs"
   },
   "browserslist": [
     "> 1%",
@@ -89,7 +90,8 @@
     "jsdom": "26.1.0",
     "sass": "^1.51.0",
     "sass-loader": "^12.6.0",
-    "vitest": "4.1.11"
+    "vitest": "4.1.11",
+    "sharp": "0.32.6"
   },
   "engines": {
     "node": "22.x"
