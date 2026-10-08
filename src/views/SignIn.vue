@@ -7,6 +7,9 @@
           <h2 class="cursor-none">MetaWall</h2>
           <h3>到元宇宙展開全新社交圈</h3>
           <VForm @submit="signIn">
+            <button class="btn demo-fill" type="button" :disabled="submitting" @click="fillDemoCredentials">
+              帶入展示帳密
+            </button>
             <div class="input-group">
               <label class="input-wrapper" for="email">
                 <VField
@@ -20,11 +23,6 @@
                   :rules="{ required: true, email: true }"
                   autocomplete="username"
                 />
-                <div class="tooltip">
-                  <div class="title">SAMPLE</div>
-                  <div>帳 - test1@example.com</div>
-                  <div>密 - Test123456</div>
-                </div>
                 <error-message name="Email"
                   aria-label="Email" />
               </label>
@@ -40,11 +38,6 @@
                   autocomplete="current-password"
                   rules="required"
                 />
-                <div class="tooltip">
-                  <div class="title">SAMPLE</div>
-                  <div>帳 - test1@example.com</div>
-                  <div>密 - Test123456</div>
-                </div>
                 <error-message name="Password"
                   aria-label="Password" />
               </label>
@@ -66,6 +59,13 @@ export default {
   computed: { connectionError() { return this.$store.state.authError } },
   watch: { user: { deep: true, handler() { this.err = ''; this.$store.commit('authError', '') } } },
   methods: {
+    fillDemoCredentials() {
+      if (this.submitting) return
+      // This is the same public sample account previously shown in the tooltips.
+      this.user = { email: 'test1@example.com', password: 'Test123456' }
+      this.err = ''
+      this.$store.commit('authError', '')
+    },
     async signIn() {
       if (this.submitting) return
       this.submitting = true
@@ -83,4 +83,3 @@ export default {
 </script>
 
 <style lang="scss" src="@/assets/scss/site/_sign.scss" scoped></style>
-
