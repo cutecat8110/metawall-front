@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-08",
+  "frontendCodeCommit": "353509a3e1d7d537f5cc116a3d5261ae8c564913",
+  "backendCodeCommit": "cecefbc7398c0d818d0fb2d7fa2e8d916b4141e9",
+  "apiChecks": 34,
+  "matchingPublishedFiles": 44,
+  "browser": "Chrome 155.0.8059.39 on macOS (viewport simulation)",
+  "qaRecordIDs": {
+    "users": [
+      "6ac6e142d7c1eb68ae7c8e0e",
+      "6ac6e146d7c1eb68ae7c8e12"
+    ],
+    "posts": [
+      "6ac6e605483f75b23a477201",
+      "6ac6e6c8483f75b23a4772a2"
+    ],
+    "comments": [
+      "6ac6e608483f75b23a477218",
+      "6ac6e6ac483f75b23a477272"
+    ]
+  },
+  "cleanup": {
+    "removed": {
+      "users": 2,
+      "posts": 2,
+      "comments": 2
+    },
+    "remaining": {
+      "users": 4,
+      "posts": 7,
+      "comments": 32
+    },
+    "originalIDsPreserved": true,
+    "imagesDeleted": 2,
+    "completedAt": "2026-10-08T00:46:12.428620+00:00",
+    "imageDeletionEvidence": "Render dep-db3eetmi0phs739r6n1g: both exact QA image IDs returned HTTP 200 / success true"
+  },
+  "imagesCleanup": "completed",
+  "browserLiveChecks": [
+    "login",
+    "Enter comment",
+    "duplicate like/follow/post prevention",
+    "lists",
+    "query refresh",
+    "mobile images",
+    "logout"
+  ],
+  "browserImagesObserved": {
+    "loaded": 55,
+    "pendingLazyImages": 5,
+    "failed": 0
+  },
+  "qaImageIDs": [
+    "eIKzOfG",
+    "v0ZZHgE"
+  ]
+}

@@ -31,7 +31,7 @@ npm run build
 
 預覽路徑為 `/metawall-front/`。`.npmrc` 固定舊 Vue CLI 套件的 peer dependency 安裝方式，避免新 npm 的解析差異；未全面升級框架。
 
-- `VUE_APP_API` 是 API 根網址；`.env` 指向现有 Render，`.env.local` 可覆寫。
+- `VUE_APP_API` 是 API 根網址；`.env` 指向現有 Render，`.env.local` 可覆寫。
 - `VUE_APP_USER_PHOTO`、`VUE_APP_USER_PHOTO_2`、`VUE_APP_SIGN_BG` 為原始預設圖片的路徑，現隨網站發布於 `public/images/`，保留原圖片。會員上傳圖片仍使用原 Imgur URL。
 - `VUE_APP_*` 會進入公開產物，不能放秘密。
 - Vitest / Vue Test Utils 驗證操作、並行請求、路由與圖片事件。單元測試略過 SFC 樣式編譯；樣式由真正的 Vue CLI 正式建置及瀏覽器 RWD QA 驗證。
