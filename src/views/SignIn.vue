@@ -7,40 +7,50 @@
           <h2 class="cursor-none">MetaWall</h2>
           <h3>到元宇宙展開全新社交圈</h3>
           <VForm @submit="signIn">
-            <button class="btn demo-fill" type="button" :disabled="submitting" @click="fillDemoCredentials">
-              帶入展示帳密
-            </button>
             <div class="input-group">
-              <label class="input-wrapper" for="email">
-                <VField
-                  id="email"
-                  v-model="user.email"
-                  class="border"
-                  name="Email"
-                  aria-label="Email"
-                  type="email"
-                  placeholder="Email"
-                  :rules="{ required: true, email: true }"
-                  autocomplete="username"
-                />
+              <div class="input-wrapper">
+                <div class="input-control">
+                  <VField
+                    id="email"
+                    v-model="user.email"
+                    class="border"
+                    name="Email"
+                    aria-label="Email"
+                    type="email"
+                    placeholder="Email"
+                    :rules="{ required: true, email: true }"
+                    autocomplete="username"
+                  />
+                  <button class="btn input-action" type="button" aria-label="帶入展示帳密"
+                    title="帶入展示帳密" :disabled="submitting" @click="fillDemoCredentials">
+                    <span class="material-icons" aria-hidden="true">vpn_key</span>
+                  </button>
+                </div>
                 <error-message name="Email"
                   aria-label="Email" />
-              </label>
-              <label class="input-wrapper" for="password">
-                <VField
-                  id="password"
-                  v-model="user.password"
-                  class="border"
-                  name="Password"
-                  aria-label="Password"
-                  type="password"
-                  placeholder="Password"
-                  autocomplete="current-password"
-                  rules="required"
-                />
+              </div>
+              <div class="input-wrapper">
+                <div class="input-control">
+                  <VField
+                    id="password"
+                    v-model="user.password"
+                    class="border"
+                    name="Password"
+                    aria-label="Password"
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    rules="required"
+                  />
+                  <button class="btn input-action" type="button" :aria-label="showPassword ? '隱藏密碼' : '顯示密碼'"
+                    :title="showPassword ? '隱藏密碼' : '顯示密碼'" :aria-pressed="showPassword"
+                    @click="showPassword = !showPassword">
+                    <span class="material-icons" aria-hidden="true">{{ showPassword ? 'visibility' : 'visibility_off' }}</span>
+                  </button>
+                </div>
                 <error-message name="Password"
                   aria-label="Password" />
-              </label>
+              </div>
             </div>
             <div v-if="err || connectionError" class="error-message" role="alert">{{ err || connectionError }}</div>
             <button class="btn border submit" type="submit" :disabled="submitting">登入</button>
@@ -55,7 +65,7 @@
 <script>
 export default {
   name: 'SignInView',
-  data() { return { user: { email: '', password: '' }, err: '', submitting: false, bg: process.env.VUE_APP_SIGN_BG } },
+  data() { return { user: { email: '', password: '' }, err: '', submitting: false, showPassword: false, bg: process.env.VUE_APP_SIGN_BG } },
   computed: { connectionError() { return this.$store.state.authError } },
   watch: { user: { deep: true, handler() { this.err = ''; this.$store.commit('authError', '') } } },
   methods: {
