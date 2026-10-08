@@ -73,6 +73,7 @@
           :to="{ path: `/profile/${comment.user._id}` }"
         >
           <img v-image="comment.user.photo !== '' ? comment.user.photo : commentPhoto"
+            loading="lazy" decoding="async" width="45" height="45"
             class="hide"
             :src="comment.user.photo !== '' ? comment.user.photo : commentPhoto"
             alt=""
@@ -97,8 +98,9 @@
 <script>
 export default {
   name: 'PostsCMPT', props: ['tempPost'],
-  data() { return { post: this.tempPost, comment: '', paddingBottom: {}, commentPhoto: process.env.VUE_APP_USER_PHOTO, liking: false, sending: false, requestError: '' } },
-  watch: { tempPost: { deep: true, handler(value) { this.post = value } } },
+  data() { return { post: this.tempPost, comment: '', paddingBottom: {}, commentPhoto: process.env.VUE_APP_USER_PHOTO, liking: false, sending: false, requestError: '', refreshVersion: 0 } },
+  beforeUnmount() { this.refreshVersion += 1 },
+  watch: { tempPost: { deep: true, handler(value) { this.refreshVersion += 1; this.post = value } } },
   computed: {
     user() { return this.$store.state.user },
     photo() { return this.post.user.photo || process.env.VUE_APP_USER_PHOTO },
@@ -128,8 +130,14 @@ export default {
       finally { this.sending = false }
     },
     async upload() {
-      const res = await this.$http.get(`${process.env.VUE_APP_API}/post/${this.post._id}`)
-      this.post = res.data.post
+      this.refreshVersion += 1
+      const version = this.refreshVersion
+      try {
+        const res = await this.$http.get(`${process.env.VUE_APP_API}/post/${this.post._id}`)
+        if (version === this.refreshVersion) this.post = res.data.post
+      } catch (error) {
+        if (version === this.refreshVersion) throw error
+      }
     },
     size() {
       const image = this.$refs.postsPhoto
@@ -285,4 +293,3 @@ export default {
   .comment-wrapper .comment label { padding: 0.5rem; }
 }
 </style>
-

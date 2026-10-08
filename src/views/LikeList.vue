@@ -3,7 +3,7 @@
     <Title :title="'我按讚的貼文'" />
     <div v-for="post in posts" :key="post._id" class="card border bg-white shadow radius">
       <router-link class="user-photo border circle btn" :to="{ path: `/profile/${post.user._id}` }">
-        <img v-image="post.user.photo || photo" class="hide" :src="post.user.photo || photo" alt="" @load="successLoadImg" />
+        <img v-image="post.user.photo || photo" loading="lazy" decoding="async" width="40" height="40" class="hide" :src="post.user.photo || photo" alt="" @load="successLoadImg" />
       </router-link>
       <div class="info">
         <router-link class="fw-bold btn" :to="{ path: `/profile/${post.user._id}` }">
@@ -129,4 +129,3 @@ export default {
 .card a.fw-bold, .info .fw-bold { white-space: normal; overflow-wrap: anywhere; }
 @media (max-width: $mobile) { .card { column-gap: 0.5rem; padding: 1rem 0.75rem; } }
 </style>
-

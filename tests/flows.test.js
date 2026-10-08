@@ -27,6 +27,17 @@ it('upload cancellation sends nothing; invalid type and size are rejected locall
 it('cached images become visible and failed images have a visible fallback',()=>{
  const img=document.createElement('img');img.src='https://example.test/a.png';img.className='hide';Object.defineProperty(img,'complete',{value:true});Object.defineProperty(img,'naturalWidth',{value:100});image.mounted(img);expect(img.classList.contains('hide')).toBe(false);img.dispatchEvent(new Event('error'));expect(img.alt).toContain('無法載入');image.unmounted(img)
 })
+it('lazy images can finish loading, recover after a failed source and release their handlers',()=>{
+ const img=document.createElement('img');img.src='https://example.test/lazy.png';img.loading='lazy';img.className='hide';
+ Object.defineProperty(img,'complete',{value:false,configurable:true});image.mounted(img);
+ expect(img.classList.contains('hide')).toBe(true);
+ img.dispatchEvent(new Event('load'));expect(img.classList.contains('hide')).toBe(false);
+ img.dispatchEvent(new Event('error'));expect(img.dataset.loadError).toBe('true');
+ img.src='https://example.test/replacement.png';image.updated(img,{value:img.src,oldValue:'https://example.test/lazy.png'});
+ expect(img.dataset.loadError).toBeUndefined();expect(img.alt).toBe('');
+ img.dispatchEvent(new Event('load'));expect(img.classList.contains('hide')).toBe(false);
+ image.unmounted(img);img.dispatchEvent(new Event('error'));expect(img.dataset.loadError).toBeUndefined()
+})
 
 it('password success immediately uses the returned token for later requests',async()=>{
  const commit=vi.fn();const w=mount(Security,{global:{...globals,mocks:{...globals.mocks,$http:{patch:vi.fn().mockResolvedValue({data:{user:{token:'local-token'}}})},$store:{commit},$swal:vi.fn()}}});

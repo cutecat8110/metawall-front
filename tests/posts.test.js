@@ -23,4 +23,34 @@ describe('post interactions',()=>{
   const {wrapper,http}=setup();let resolve;http.post.mockReturnValue(new Promise(r=>{resolve=r}));await wrapper.get('input').setValue('Hello');wrapper.vm.send();wrapper.vm.send();expect(http.post).toHaveBeenCalledTimes(1);resolve({});await flushPromises();
   http.post.mockClear();http.post.mockReturnValue(new Promise(r=>{resolve=r}));wrapper.vm.toggle(false);wrapper.vm.toggle(false);expect(http.post).toHaveBeenCalledTimes(1);resolve({});await flushPromises();wrapper.unmount()
  })
+ it('a delayed like refresh cannot erase a newer comment response',async()=>{
+  const {wrapper,http}=setup();const pending=[];
+  http.get.mockImplementation(()=>new Promise(resolve=>{pending.push(resolve)}));
+  const liking=wrapper.vm.toggle(false);await flushPromises();
+  await wrapper.get('input').setValue('new comment');const sending=wrapper.vm.send();await flushPromises();
+  const latest={...post(),likes:['b'],comments:[{_id:'c1',user:{_id:'b',name:'Bob',photo:''},comment:'new comment'}]};
+  pending[1]({data:{post:latest}});await sending;
+  pending[0]({data:{post:{...post(),likes:['b']}}});await liking;
+  expect(wrapper.vm.post.comments).toHaveLength(1);expect(wrapper.text()).toContain('new comment');
+  expect(wrapper.get('.likes').attributes('aria-pressed')).toBe('true');wrapper.unmount()
+ })
+ it('an obsolete refresh failure cannot replace a successful newer state with an error',async()=>{
+  const {wrapper,http}=setup();let rejectOld;
+  http.get.mockImplementationOnce(()=>new Promise((resolve,reject)=>{rejectOld=reject}));
+  const liking=wrapper.vm.toggle(false);await flushPromises();
+  await wrapper.vm.upload();rejectOld(new Error('late failure'));await liking;
+  expect(wrapper.vm.requestError).toBe('');wrapper.unmount()
+ })
+ it('new parent data and unmount invalidate pending post refreshes',async()=>{
+  const {wrapper,http}=setup();let resolve;
+  http.get.mockImplementation(()=>new Promise(r=>{resolve=r}));
+  const first=wrapper.vm.upload();await wrapper.setProps({tempPost:{...post(),content:'fresh parent'}});
+  resolve({data:{post:post()}});await first;expect(wrapper.vm.post.content).toBe('fresh parent');
+  const second=wrapper.vm.upload();const instance=wrapper.vm;wrapper.unmount();
+  resolve({data:{post:post()}});await second;expect(instance.post.content).toBe('fresh parent')
+ })
+ it('comment avatars reserve their box and defer loading like other feed images',()=>{
+  const {wrapper}=setup({...post(),comments:[{user:{_id:'b',name:'Bob',photo:''},comment:'hello'}]});
+  const img=wrapper.get('.comments img');expect(img.attributes()).toMatchObject({loading:'lazy',decoding:'async',width:'45',height:'45'});wrapper.unmount()
+ })
 })

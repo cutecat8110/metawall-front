@@ -6,7 +6,7 @@
         class="user-photo border circle btn"
         :to="{ path: `/profile/${follow.user._id}` }"
       >
-        <img v-image="follow.user.photo || photo" class="hide" :src="follow.user.photo || photo" alt="" @load="successLoadImg" />
+        <img v-image="follow.user.photo || photo" loading="lazy" decoding="async" width="40" height="40" class="hide" :src="follow.user.photo || photo" alt="" @load="successLoadImg" />
       </router-link>
       <router-link class="fw-bold btn" :to="{ path: `/profile/${follow.user._id}` }">
         {{ follow.user.name }}
@@ -91,4 +91,3 @@ export default {
 @media (max-width: $mobile) { .card { column-gap: 0.5rem; padding: 1rem 0.75rem; } }
 @media (max-width: $pad) { .day { grid-column: 2 / -1; } .created { grid-column: 2 / -1; } }
 </style>
-
