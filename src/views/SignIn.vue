@@ -22,8 +22,11 @@
                     autocomplete="username"
                   />
                   <button class="btn input-action" type="button" aria-label="帶入展示帳密"
-                    title="帶入展示帳密" :disabled="submitting" @click="fillDemoCredentials">
+                    :class="{ 'tooltip-dismissed': tooltipDismissed }" :disabled="submitting"
+                    @mouseenter="tooltipDismissed = false" @focus="tooltipDismissed = false"
+                    @keydown.esc="tooltipDismissed = true" @click="fillDemoCredentials">
                     <span class="material-icons" aria-hidden="true">vpn_key</span>
+                    <span class="input-action-tip" aria-hidden="true">帶入展示帳密</span>
                   </button>
                 </div>
                 <error-message name="Email"
@@ -43,9 +46,12 @@
                     rules="required"
                   />
                   <button class="btn input-action" type="button" :aria-label="showPassword ? '隱藏密碼' : '顯示密碼'"
-                    :title="showPassword ? '隱藏密碼' : '顯示密碼'" :aria-pressed="showPassword"
+                    :class="{ 'tooltip-dismissed': tooltipDismissed }" :aria-pressed="showPassword"
+                    @mouseenter="tooltipDismissed = false" @focus="tooltipDismissed = false"
+                    @keydown.esc="tooltipDismissed = true"
                     @click="showPassword = !showPassword">
                     <span class="material-icons" aria-hidden="true">{{ showPassword ? 'visibility' : 'visibility_off' }}</span>
+                    <span class="input-action-tip" aria-hidden="true">{{ showPassword ? '隱藏密碼' : '顯示密碼' }}</span>
                   </button>
                 </div>
                 <error-message name="Password"
@@ -65,7 +71,7 @@
 <script>
 export default {
   name: 'SignInView',
-  data() { return { user: { email: '', password: '' }, err: '', submitting: false, showPassword: false, bg: process.env.VUE_APP_SIGN_BG } },
+  data() { return { user: { email: '', password: '' }, err: '', submitting: false, showPassword: false, tooltipDismissed: false, bg: process.env.VUE_APP_SIGN_BG } },
   computed: { connectionError() { return this.$store.state.authError } },
   watch: { user: { deep: true, handler() { this.err = ''; this.$store.commit('authError', '') } } },
   methods: {
