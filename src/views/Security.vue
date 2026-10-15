@@ -1,6 +1,7 @@
 <template>
   <div class="security">
-    <VForm v-slot="{ errors }" @submit="updated">
+    <p v-if="credentialsLocked">展示帳號無法修改帳密</p>
+    <VForm v-else v-slot="{ errors }" @submit="updated">
       <!-- 新密碼 -->
       <label class="input-wrapper" for="password">
         <div class="title">輸入新密碼</div>
@@ -41,10 +42,13 @@
 export default {
   name: 'SecurityView',
   data() { return { password: '', confirmPassword: '', requestError: '', submitting: false } },
+  computed: {
+    credentialsLocked() { return this.$store.state?.user?.credentialsLocked === true }
+  },
   methods: {
     disabled(errors) { return !this.password || !this.confirmPassword || Object.keys(errors).length > 0 },
     async updated() {
-      if (this.submitting) return
+      if (this.submitting || this.credentialsLocked) return
       this.submitting = true; this.requestError = ''
       try {
         const res = await this.$http.patch(`${process.env.VUE_APP_API}/user/updatePassword`, { password: this.password, confirmPassword: this.confirmPassword })

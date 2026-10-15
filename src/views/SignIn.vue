@@ -69,6 +69,8 @@
 </template>
 
 <script>
+import demoAccount from '@/config/demo-account.json'
+
 export default {
   name: 'SignInView',
   data() { return { user: { email: '', password: '' }, err: '', submitting: false, showPassword: false, tooltipDismissed: false, bg: process.env.VUE_APP_SIGN_BG } },
@@ -78,7 +80,7 @@ export default {
     fillDemoCredentials() {
       if (this.submitting) return
       // This is the same public sample account previously shown in the tooltips.
-      this.user = { email: 'test1@example.com', password: 'Test123456' }
+      this.user = { ...demoAccount }
       this.err = ''
       this.$store.commit('authError', '')
     },

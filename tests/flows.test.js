@@ -43,3 +43,11 @@ it('password success immediately uses the returned token for later requests',asy
  const commit=vi.fn();const w=mount(Security,{global:{...globals,mocks:{...globals.mocks,$http:{patch:vi.fn().mockResolvedValue({data:{user:{token:'local-token'}}})},$store:{commit},$swal:vi.fn()}}});
  await w.setData({password:'OnlyTest123',confirmPassword:'OnlyTest123'});await w.vm.updated();expect(localStorage.getItem('authorization')).toBe('Bearer local-token');expect(commit).toHaveBeenCalledWith('headers',{headers:{authorization:'Bearer local-token'}});localStorage.clear();w.unmount()
 })
+
+it('demo credential screen stays locked even when its submit method is called', async () => {
+ const patch=vi.fn();
+ const w=mount(Security,{global:{...globals,mocks:{...globals.mocks,$http:{patch},$store:{state:{user:{credentialsLocked:true}}}}}});
+ expect(w.text()).toContain('展示帳號無法修改帳密');expect(w.find('form').exists()).toBe(false);
+ await w.setData({password:'ChangedDemo123',confirmPassword:'ChangedDemo123'});await w.vm.updated();
+ expect(patch).not.toHaveBeenCalled();w.unmount();
+});
