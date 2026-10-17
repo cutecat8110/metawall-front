@@ -15,7 +15,7 @@
 - [API 文件](https://metawall-backend-c89d.onrender.com/api-docs/)
 - [Demo](https://cutecat8110.github.io/metawall-front/)
 
-鑰匙可帶入 `test@example.com`（測試帳號）。共用帳號的帳密已固定保護，請勿填入個人資訊；個人資料請另行註冊保存。
+鑰匙可帶入「小貓咪船長」的展示帳密。共用帳號的帳密已固定保護，請勿填入個人資訊；個人資料請另行註冊保存。
 
 ## 🌸 啟動、測試與部署
 
