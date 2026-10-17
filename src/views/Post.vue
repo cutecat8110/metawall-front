@@ -17,7 +17,7 @@
       </label>
       <label class="btn upload" for="uploadImage">
         上傳圖片
-        <input id="uploadImage" class="file-input" name="uploadImage" type="file"
+        <input id="uploadImage" ref="uploadInput" class="file-input" name="uploadImage" type="file"
           accept=".jpg,.jpeg,.png,image/jpeg,image/png" :disabled="uploading || submitting"
           @change="upload" />
       </label>
@@ -28,8 +28,8 @@
           </div>
           <template v-if="image">
             <img v-image="image" ref="postsPhoto" class="hide" :src="image" alt="" @load="successLoadImg($event); size()" />
-            <button class="btn border clear circle" type="button" @click="clearImg">
-              <span class="material-icons"> close </span>
+            <button class="btn border clear circle" type="button" aria-label="移除圖片" title="移除圖片" @click="clearImg">
+              <span class="material-icons" aria-hidden="true"> close </span>
             </button>
           </template>
         </div>
@@ -82,7 +82,12 @@ export default {
       } catch (error) { if (version === this.uploadVersion) this.errMessage = this.$errorMessage(error) }
       finally { this.uploading = false }
     },
-    clearImg() { this.uploadVersion += 1; this.image = ''; this.paddingBottom = { paddingBottom: '52.35%' } },
+    clearImg() {
+      this.uploadVersion += 1
+      this.image = ''
+      this.paddingBottom = { paddingBottom: '52.35%' }
+      this.$nextTick(() => this.$refs.uploadInput?.focus())
+    },
     disabled(errors) { return !this.content.trim() || Object.keys(errors).length > 0 },
     size() {
       const image = this.$refs.postsPhoto
