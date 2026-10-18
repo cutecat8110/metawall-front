@@ -1,0 +1,13 @@
+
+> metawall@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 <project>
+
+
+ Test Files  6 passed (6)
+      Tests  30 passed (30)
+   Start at  20:18:18
+   Duration  677ms (transform 444ms, setup 0ms, import 825ms, tests 226ms, environment 2.15s)
+

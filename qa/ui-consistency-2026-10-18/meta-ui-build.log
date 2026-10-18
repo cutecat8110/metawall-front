@@ -1,0 +1,137 @@
+
+> metawall@0.1.0 build
+> vue-cli-service build
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+All browser targets in the browserslist configuration have supported ES module.
+Therefore we don't build two separate bundles for differential loading.
+
+
+-  Building for production...
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3063) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3069) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3065) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3064) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3067) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3068) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3066) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3070) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+(node:3071) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ WARNING  Compiled with 2 warnings8:18:23 PM
+
+ warning  
+
+asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  js/app.41a8b2c7.js (339 KiB)
+  demo.png (341 KiB)
+
+ warning  
+
+entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  app (368 KiB)
+      css/app.08443484.css
+      js/app.41a8b2c7.js
+
+
+  File                         Size                   Gzipped
+
+  docs/js/app.41a8b2c7.js      339.10 KiB             112.98 KiB
+  docs/js/779.d3bf1480.js      10.16 KiB              3.26 KiB
+  docs/js/673.6059703d.js      9.22 KiB               3.14 KiB
+  docs/js/893.33cb5ba9.js      7.02 KiB               2.58 KiB
+  docs/js/860.e551a84e.js      4.79 KiB               2.12 KiB
+  docs/js/473.fd90992e.js      4.58 KiB               2.02 KiB
+  docs/js/921.c9b190af.js      4.55 KiB               1.93 KiB
+  docs/js/281.7e81215f.js      3.58 KiB               1.62 KiB
+  docs/js/555.986d48d2.js      3.51 KiB               1.57 KiB
+  docs/js/915.3b35a83d.js      3.47 KiB               1.62 KiB
+  docs/js/435.4cbade2a.js      2.84 KiB               1.39 KiB
+  docs/js/98.a5db599f.js       1.65 KiB               0.89 KiB
+  docs/js/870.197f0d86.js      1.40 KiB               0.73 KiB
+  docs/css/app.08443484.css    28.68 KiB              5.75 KiB
+  docs/css/555.b24c582c.css    4.92 KiB               1.21 KiB
+  docs/css/893.1aba46e3.css    4.18 KiB               1.12 KiB
+  docs/css/98.848c44db.css     4.08 KiB               1.08 KiB
+  docs/css/779.c69e11f1.css    4.01 KiB               1.07 KiB
+  docs/css/915.e6523b96.css    3.78 KiB               1.15 KiB
+  docs/css/921.0b30e9e9.css    3.78 KiB               1.15 KiB
+  docs/css/860.d734e123.css    1.81 KiB               0.63 KiB
+  docs/css/281.bb107151.css    1.57 KiB               0.63 KiB
+  docs/css/473.93d5c079.css    1.43 KiB               0.55 KiB
+  docs/css/870.f5b04b36.css    0.69 KiB               0.33 KiB
+  docs/css/435.c9b39154.css    0.28 KiB               0.18 KiB
+
+  Images and other types of assets omitted.
+  Build at: 2026-10-18T12:18:23.268Z - Hash: 7d03657cec443436 - Time: 2529ms
+
+ DONE  Build complete. The docs directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+       

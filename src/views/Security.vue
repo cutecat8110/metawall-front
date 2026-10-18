@@ -78,7 +78,7 @@ export default {
 .error-message {
   margin-top: 0.25rem;
 
-  color: $pink;
+  color: $error-text;
   text-align: start;
   font-size: 0.875rem;
 }

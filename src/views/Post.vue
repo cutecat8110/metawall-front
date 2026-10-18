@@ -114,7 +114,7 @@ form {
   font-weight: Normal;
   font-size: 1rem;
   span {
-    color: $pink;
+    color: $error-text;
     font-size: 0.875rem;
   }
 }
