@@ -1,23 +1,25 @@
-# Metawall - 社群內容牆 ( 前端 )
+# MetaWall｜社群內容牆
 
 ![Node](https://img.shields.io/badge/Node.js-v22.23.3-brightgreen.svg)
 ![Vue](https://img.shields.io/badge/Vue.js-v3-blue.svg)
 
-> 這是一個充滿分享和互動的社交平台，讓你自由註冊、追蹤喜歡的用戶、留言與分享生活。在這裡，你可以盡情展現自我，並留下寶貴的回憶。
+發文、圖片上傳、留言、按讚與追蹤，串接自建 Express／MongoDB API。
 
-![](https://cutecat8110.github.io/metawall-front/demo.png)
+**[Demo](https://cutecat8110.github.io/metawall-front/)** · [後端](https://github.com/cutecat8110/metawall-back) · [API 文件](https://metawall-backend-c89d.onrender.com/api-docs/)
 
-## 📋 專案概述
+![MetaWall 小貓咪船長的貼文與會員操作](public/demo.png)
 
-此專案旨在增進獨立前後端開發能力，運用 Vue Options API、nodeJS 和 MongoDB 等技術。<br>開發API 設計反覆進行測試和防呆，以確保系統穩定與安全性。同時著重於切版與動效實現，以提升畫面品質與社交體驗。
+<details>
+<summary>使用說明</summary>
 
-- [後端](https://github.com/cutecat8110/metawall-back)
-- [API 文件](https://metawall-backend-c89d.onrender.com/api-docs/)
-- [Demo](https://cutecat8110.github.io/metawall-front/)
+鑰匙可帶入「小貓咪船長」。共用帳號的帳密固定，請勿填入個人資訊；需要個人資料空間時請另行註冊。
 
-鑰匙可帶入「小貓咪船長」的展示帳密。共用帳號的帳密已固定保護，請勿填入個人資訊；個人資料請另行註冊保存。
+免費後端可能冷啟動；請求等待上限 90 秒，寫入不會自動重送。圖片上傳依賴 Imgur。
 
-## 🌸 啟動、測試與部署
+</details>
+
+<details>
+<summary>開發、測試與部署</summary>
 
 使用 `.node-version` 固定的 Node 22.23.3：
 
@@ -31,7 +33,7 @@ npm run lint -- --no-fix
 npm run build
 ```
 
-預覽路徑為 `/metawall-front/`。`.npmrc` 固定舊 Vue CLI 套件的 peer dependency 安裝方式，避免新 npm 的解析差異；未全面升級框架。
+預覽路徑為 `/metawall-front/`。`.npmrc` 固定舊 Vue CLI 套件的 peer dependency 安裝方式，避免新 npm 的解析差異；
 
 - `VUE_APP_API` 是 API 根網址；`.env` 指向現有 Render，`.env.local` 可覆寫。
 - `VUE_APP_USER_PHOTO`、`VUE_APP_USER_PHOTO_2`、`VUE_APP_SIGN_BG` 為原始預設圖片的路徑，現隨網站發布於 `public/images/`，保留原圖片。會員上傳圖片仍使用原 Imgur URL。
@@ -39,84 +41,20 @@ npm run build
 - Vitest / Vue Test Utils 驗證操作、並行請求、路由與圖片事件。單元測試略過 SFC 樣式編譯；樣式由真正的 Vue CLI 正式建置及瀏覽器 RWD QA 驗證。
 - 正式發布前移除本機 API 覆寫，確認 `VUE_APP_API` 為 Render 正式網址；`npm run build` 產生 `docs/`，GitHub Pages 使用 `main` 的 `/docs`。
 - Render 免費後端可能冷啟動；等待上限 90 秒，失敗可手動重試，寫入不自動重送。
-- 回復時先選回上一個成功的 Render 部署，再將所需版本的前端 `docs/` 以新提交恢復至 `main`。本輪前基準提交 `18467ccda44851ba51d45e9ec869a04f693d422b`。
 
 詳細修正與兩輪驗證請看 [QA_CHANGELOG.md](QA_CHANGELOG.md)。
 
-## 🔨 核心技術
-
-<table>
-  <tbody>
-    <tr>
-      <td>
-        <a href="https://vuejs.org/" >
-          Vue 3
-        </a>
-      </td>
-      <td>JavaScript 框架</td>
-    </tr>
-    <tr>
-      <td>
-        <a href="https://vuex.vuejs.org/" >
-          Vuex
-        </a>
-      </td>
-      <td>Vue.js 的狀態管理庫</td>
-    </tr>
-    <tr>
-      <td>
-        <a href="https://www.npmjs.com/package/vue-axios" >
-          Vue Axios
-        </a>
-      </td>
-      <td>HTTP 請求工具</td>
-    </tr>
-  </tbody>
-</table>
-
-## 🛠️ 擴展套件
-
-<table>
-  <tbody>
-    <tr>
-      <td>
-        <a href="https://sweetalert2.github.io/">
-          SweetAlert 2
-        </a>
-      </td>
-      <td>可定製訊息彈框</td>
-    </tr>
-    <tr>
-      <td>
-        <a href="https://www.npmjs.com/package/vue-loading-overlay">
-          Vue Loading Overlay
-        </a>
-      </td>
-      <td>loading 效果組件</td>
-    </tr>
-    <tr>
-      <td>
-        <a href="https://vee-validate.logaretm.com/v4/">
-          VeeValidate
-        </a>
-      </td>
-      <td>表單驗證庫</td>
-    </tr>
-        <tr>
-      <td>
-        <a href="https://momentjs.com/">
-          moment
-        </a>
-      </td>
-      <td>日期和時間處理庫</td>
-    </tr>
-  </tbody>
-</table>
-
-## 載入維護（2026-10-08）
+### 素材維護
 
 原始圖片與設計保留，網站引用預先產生的 WebP。更新原圖後，以 Node 22 執行 `npm ci`、`npm run images:optimize`；一併提交 WebP 與 `qa/image-sizes.json`，一般發布不會即時轉圖。圖片來源與輸出清單在 `scripts/image-sources.json`。之後執行原本的 `npm run build`，同步發布 `docs/`。
 
-檢查方法、數據及外部服務限制見 [QA_CHANGELOG.md](QA_CHANGELOG.md)。
+</details>
 
-[介面設計規範](DESIGN_GUIDELINES.md)
+<details>
+<summary>技術與套件</summary>
+
+[Vue 3](https://vuejs.org/) · [Vuex](https://vuex.vuejs.org/) · [Vue Axios](https://www.npmjs.com/package/vue-axios) · [SweetAlert 2](https://sweetalert2.github.io/) · [Vue Loading Overlay](https://www.npmjs.com/package/vue-loading-overlay) · [VeeValidate](https://vee-validate.logaretm.com/v4/) · [moment](https://momentjs.com/)
+
+</details>
+
+[QA 紀錄](QA_CHANGELOG.md) · [介面設計規範](DESIGN_GUIDELINES.md)
