@@ -124,12 +124,8 @@ npm run build
 - 正式發布前移除本機 API 覆寫，確認 `VUE_APP_API` 為 Render 正式網址；`npm run build` 產生 `docs/`，GitHub Pages 使用 `main` 的 `/docs`。
 - Render 免費後端可能冷啟動；等待上限 90 秒，失敗可手動重試，寫入不自動重送。
 
-詳細修正與兩輪驗證請看 [QA_CHANGELOG.md](QA_CHANGELOG.md)。
-
 ### 素材維護
 
 原始圖片與設計保留，網站引用預先產生的 WebP。更新原圖後，以 Node 22 執行 `npm ci`、`npm run images:optimize`；一併提交 WebP 與 `qa/image-sizes.json`，一般發布不會即時轉圖。圖片來源與輸出清單在 `scripts/image-sources.json`。之後執行原本的 `npm run build`，同步發布 `docs/`。
 
 </details>
-
-[QA 紀錄](QA_CHANGELOG.md) · [介面設計規範](DESIGN_GUIDELINES.md)
