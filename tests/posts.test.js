@@ -9,8 +9,31 @@ function setup(item=post()) {
  return {wrapper,http}
 }
 describe('post interactions',()=>{
+ it('confirming Chinese composition does not submit before a separate Enter press',async()=>{
+  const {wrapper,http}=setup();const input=wrapper.get('input');
+  await input.trigger('compositionstart');
+  await input.setValue('中文留言');
+  await input.trigger('keydown.enter',{isComposing:true,keyCode:229});
+  await input.trigger('compositionend');
+  await input.trigger('keyup.enter',{isComposing:false});
+  await flushPromises();
+  expect(http.post).not.toHaveBeenCalled();
+  expect(input.element.value).toBe('中文留言');
+  await input.trigger('keydown.enter');
+  await flushPromises();
+  expect(http.post).toHaveBeenCalledTimes(1);
+  expect(http.post.mock.calls[0][1]).toEqual({comment:'中文留言'});
+  wrapper.unmount()
+ })
+ it('ignores an IME confirmation key even when isComposing is already false',async()=>{
+  const {wrapper,http}=setup();const input=wrapper.get('input');
+  await input.setValue('選字確認');
+  await input.trigger('keydown',{key:'Enter',code:'Enter',isComposing:false,keyCode:229});
+  await input.trigger('keyup.enter',{isComposing:false});
+  await flushPromises();expect(http.post).not.toHaveBeenCalled();wrapper.unmount()
+ })
  it('Enter sends one trimmed comment and clears it only after success',async()=>{
-  const {wrapper,http}=setup(); await wrapper.get('input').setValue(' hello '); await wrapper.get('input').trigger('keyup.enter'); await flushPromises();
+  const {wrapper,http}=setup(); await wrapper.get('input').setValue(' hello '); await wrapper.get('input').trigger('keydown.enter'); await flushPromises();
   expect(http.post).toHaveBeenCalledTimes(1); expect(http.post.mock.calls[0][1]).toEqual({comment:'hello'}); expect(wrapper.get('input').element.value).toBe(''); wrapper.unmount()
  })
  it('image load makes the post image visible',async()=>{
@@ -22,6 +45,18 @@ describe('post interactions',()=>{
  it('rapid comment and like actions do not duplicate a pending request',async()=>{
   const {wrapper,http}=setup();let resolve;http.post.mockReturnValue(new Promise(r=>{resolve=r}));await wrapper.get('input').setValue('Hello');wrapper.vm.send();wrapper.vm.send();expect(http.post).toHaveBeenCalledTimes(1);resolve({});await flushPromises();
   http.post.mockClear();http.post.mockReturnValue(new Promise(r=>{resolve=r}));wrapper.vm.toggle(false);wrapper.vm.toggle(false);expect(http.post).toHaveBeenCalledTimes(1);resolve({});await flushPromises();wrapper.unmount()
+ })
+ it('a failed comment retains its draft and a deliberate retry sends it once',async()=>{
+  const {wrapper,http}=setup();http.post.mockRejectedValueOnce(new Error('offline'));
+  const input=wrapper.get('input');await input.setValue('保留這則草稿');
+  await input.trigger('keydown.enter');await flushPromises();
+  expect(input.element.value).toBe('保留這則草稿');
+  expect(wrapper.get('[role="alert"]').text()).toBe('Request failed');
+  expect(http.post).toHaveBeenCalledTimes(1);
+  await wrapper.get('.comment button').trigger('click');await flushPromises();
+  expect(http.post).toHaveBeenCalledTimes(2);
+  expect(input.element.value).toBe('');expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+  wrapper.unmount()
  })
  it('a delayed like refresh cannot erase a newer comment response',async()=>{
   const {wrapper,http}=setup();const pending=[];

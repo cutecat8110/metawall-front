@@ -17,6 +17,20 @@ it('a slow previous search cannot replace the latest result',async()=>{
 it('sorting and search controls reflect a refreshed URL and preserve each other',()=>{
  const w=mount(SubNav,{global:{...globals,mocks:{$route:{query:{q:'hello',timeSort:'asc'}}}}});expect(w.get('input').element.value).toBe('hello');expect(w.text()).toContain('最舊貼文');expect(w.vm.query()).toEqual({q:'hello',timeSort:'asc'});expect(w.vm.query('desc')).toEqual({q:'hello'});w.unmount()
 })
+it('search waits for an explicit Enter after Chinese composition and keeps the sort',async()=>{
+ const push=vi.fn();
+ const w=mount(SubNav,{global:{...globals,mocks:{$route:{query:{timeSort:'asc'}},$router:{push}}}});
+ const input=w.get('input');
+ await input.trigger('compositionstart');await input.setValue('中文搜尋');
+ await input.trigger('keydown',{key:'Enter',isComposing:true,keyCode:229});
+ await input.trigger('compositionend');await input.trigger('keyup.enter');
+ expect(push).not.toHaveBeenCalled();
+ await input.trigger('keydown',{key:'Enter',isComposing:false,keyCode:229});
+ expect(push).not.toHaveBeenCalled();
+ await input.trigger('keydown.enter');
+ expect(push).toHaveBeenCalledExactlyOnceWith({query:{q:'中文搜尋',timeSort:'asc'}});
+ w.unmount()
+})
 it('sign-in blocks duplicate submissions and can retry identical credentials after a network failure',async()=>{
  const post=vi.fn().mockRejectedValue({});const w=mount(SignIn,{global:{...globals,mocks:{...globals.mocks,$http:{post},$router:{push:vi.fn()}}}});
  const first=w.vm.signIn();w.vm.signIn();expect(post).toHaveBeenCalledTimes(1);await first;expect(w.vm.submitting).toBe(false);expect(w.vm.err).toContain('連線');await w.vm.signIn();expect(post).toHaveBeenCalledTimes(2);w.unmount()

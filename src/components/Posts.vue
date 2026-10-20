@@ -57,7 +57,7 @@
             v-model="comment"
             type="text"
             placeholder="留言..."
-            @keyup.enter="send"
+            @keydown.enter="send"
             aria-label="留言"
           />
         </label>
@@ -96,6 +96,8 @@
 </template>
 
 <script>
+import isComposing from '@/methods/isComposing'
+
 export default {
   name: 'PostsCMPT', props: ['tempPost'],
   data() { return { post: this.tempPost, comment: '', paddingBottom: {}, commentPhoto: process.env.VUE_APP_USER_PHOTO, liking: false, sending: false, requestError: '', refreshVersion: 0 } },
@@ -120,7 +122,7 @@ export default {
     },
     async send(event) {
       const comment = this.comment.trim()
-      if (event?.isComposing || this.sending || !comment) return
+      if (isComposing(event) || this.sending || !comment) return
       this.sending = true; this.requestError = ''
       try {
         await this.$http.post(`${process.env.VUE_APP_API}/post/${this.post._id}/comment`, { comment })

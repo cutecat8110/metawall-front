@@ -30,7 +30,7 @@
           type="text"
           placeholder="搜尋貼文"
           aria-label="搜尋貼文"
-          @keyup.enter="searchEnter"
+          @keydown.enter="searchEnter"
         />
       </label>
       <router-link class="btn" aria-label="搜尋" :to="{ query: query() }">
@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import isComposing from '@/methods/isComposing'
+
 export default {
   name: 'SubNavCMPT',
   data() {
@@ -83,7 +85,8 @@ export default {
         }
       }
     },
-    searchEnter() {
+    searchEnter(event) {
+      if (isComposing(event)) return
       this.$router.push({
         query: this.query()
       })
